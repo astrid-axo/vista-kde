@@ -17,6 +17,13 @@ install_component () {
 # this installs a package from fedora repos
 dnf -y install ninja plasma-workspace-devel unzip kvantum qt6-qtmultimedia-devel qt6-qt5compat-devel libplasma-devel qt6-qtbase-devel qt6-qtwayland-devel plasma-activities-devel kf6-kpackage-devel kf6-kglobalaccel-devel qt6-qtsvg-devel wayland-devel plasma-wayland-protocols kf6-ksvg-devel kf6-kcrash-devel kf6-kguiaddons-devel kf6-kcmutils-devel kf6-kio-devel kdecoration-devel kf6-ki18n-devel kf6-knotifications-devel kf6-kirigami-devel kf6-kiconthemes-devel cmake gmp-ecm-devel kf5-plasma-devel libepoxy-devel kwin-devel kf6-karchive kf6-karchive-devel plasma-wayland-protocols-devel qt6-qtbase-private-devel qt6-qtbase-devel kf6-knewstuff-devel kf6-knotifyconfig-devel kf6-attica-devel kf6-krunner-devel kf6-kdbusaddons-devel kf6-sonnet-devel plasma5support-devel plasma-activities-stats-devel polkit-qt6-1-devel qt-devel libdrm-devel kf6-kitemmodels-devel kf6-kstatusnotifieritem-devel layer-shell-qt-devel
 
+# fonts
+REACTXP="https://github.com/microsoft/reactxp/raw/refs/heads/master/samples/TodoList/src/resources/fonts"
+curl -Ls -o /usr/share/fonts/SegoeUI-Regular.ttf $REACTXP/SegoeUI-Regular.ttf
+curl -Ls -o /usr/share/fonts/SegoeUI-Semibold.ttf $REACTXP/SegoeUI-Semibold.ttf
+curl -Ls -o /usr/share/fonts/SegoeUI-Bold.ttf $REACTXP/SegoeUI-Bold.ttf
+fc-cache -f -r -v
+
 git clone https://gitgud.io/catpswin56/vistathemeplasma /tmp/vistathemeplasma
 
 cd /tmp/vistathemeplasma
@@ -109,11 +116,6 @@ chmod +x ./compile.sh
 chmod +x ./install.sh
 ./compile.sh
 echo "1" | ./install.sh
-# fonts
-REACTXP="https://github.com/microsoft/reactxp/raw/refs/heads/master/samples/TodoList/src/resources/fonts"
-curl -L -o /usr/share/fonts/SegoeUI.ttf $REACTXP/SegoeUI-Regular.ttf
-curl -L -o /usr/share/fonts/SegoeUI-Bold.ttf $REACTXP/SegoeUI-Bold.ttf
-curl -L -o /usr/share/fonts/SegoeUI-Semibold.ttf $REACT/SegoeUI-Semibold.ttf
 
 
 # Use a COPR Example:
