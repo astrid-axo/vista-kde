@@ -15,8 +15,6 @@ install_component () {
 # https://mirrors.rpmfusion.org/mirrorlist?path=free/fedora/updates/43/x86_64/repoview/index.html&protocol=https&redirect=1
 
 # this installs a package from fedora repos
-ls /usr/share/kwin
-
 dnf -y install ninja plasma-workspace-devel unzip kvantum qt6-qtmultimedia-devel qt6-qt5compat-devel libplasma-devel qt6-qtbase-devel qt6-qtwayland-devel plasma-activities-devel kf6-kpackage-devel kf6-kglobalaccel-devel qt6-qtsvg-devel wayland-devel plasma-wayland-protocols kf6-ksvg-devel kf6-kcrash-devel kf6-kguiaddons-devel kf6-kcmutils-devel kf6-kio-devel kdecoration-devel kf6-ki18n-devel kf6-knotifications-devel kf6-kirigami-devel kf6-kiconthemes-devel cmake gmp-ecm-devel kf5-plasma-devel libepoxy-devel kwin-devel kf6-karchive kf6-karchive-devel plasma-wayland-protocols-devel qt6-qtbase-private-devel qt6-qtbase-devel kf6-knewstuff-devel kf6-knotifyconfig-devel kf6-attica-devel kf6-krunner-devel kf6-kdbusaddons-devel kf6-sonnet-devel plasma5support-devel plasma-activities-stats-devel polkit-qt6-1-devel qt-devel libdrm-devel kf6-kitemmodels-devel kf6-kstatusnotifieritem-devel layer-shell-qt-devel
 
 git clone https://gitgud.io/catpswin56/vistathemeplasma /tmp/vistathemeplasma
@@ -38,7 +36,13 @@ for i in "$CUR/plasma/plasmoids/"*; do
         install_component "$i" "Plasma/Applet"
     fi
 done
-    
+
+for i in "$CUR/plasma/plasmoids/src/"*; do
+    cd "$i"
+    sh install.sh --ninja
+done
+
+cd $CUR
 # kwin components
 cp -r "$CUR/kwin/smod" "/usr/share"
 
@@ -57,6 +61,7 @@ ln -s kwin kwin-wayland
 cd $CUR
 
 # plasma components
+cp -r $CUR/plasma/{desktoptheme,look-and-feel,layout-templates,shells} /usr/share/plasma
 install_component "$CUR/plasma/look-and-feel/authuiVista" "Plasma/LookAndFeel"
 install_component "$CUR/plasma/layout-templates/io.gitgud.catpswin56.taskbar" "Plasma/LayoutTemplate"
 install_component "$CUR/plasma/desktoptheme/Vista-Black" "Plasma/Shell"
@@ -68,6 +73,7 @@ cp $CUR/plasma/color_scheme/Aero.colors /usr/share/color-schemes
 cd $CUR/plasma/sddm/login-sessions
 sh install.sh
 cd $CUR/plasma/sddm
+cp -r sddm-theme-mod /usr/share/sddm/themes
 # tar -zcvf "sddm-theme-mod.tar.gz" sddm-theme-mod
 # sddmthemeinstaller -i sddm-theme-mod.tar.gz
 #rm sddm-theme-mod.tar.gz
@@ -75,6 +81,7 @@ cd $CUR/plasma/sddm
 cd $CUR
 # misc components
 cp -r $CUR/misc/kvantum/Kvantum /etc
+echo -e "[General]\ntheme=WindowsVistaKvantum_Aero" > /etc/Kvantum/kvantum.kvconfig
 
 mkdir -p /usr/share/sounds
 tar -xf $CUR/misc/sounds/sounds.tar.gz --directory /usr/share/sounds
@@ -93,15 +100,21 @@ update-mime-database /usr/share/mime
 for i in "./misc/branding/"*; do
     cp -r "$i" /etc/kdedefaults
 done
-kwriteconfig6 --file /etc/kcm-about-distrorc --group General --key LogoPath /etc/kdedefaults/kcminfo.png
 
+kwriteconfig6 --file /etc/kcm-about-distrorc --group General --key LogoPath /etc/kdedefaults/kcminfo.png
 
 git clone https://github.com/furkrn/PlymouthVista
 cd PlymouthVista
 chmod +x ./compile.sh
 chmod +x ./install.sh
 ./compile.sh
-FOO=0 ./install.sh
+echo "1" | ./install.sh
+# fonts
+REACTXP="https://github.com/microsoft/reactxp/raw/refs/heads/master/samples/TodoList/src/resources/fonts"
+curl -L -o /usr/share/fonts/SegoeUI.ttf $REACTXP/SegoeUI-Regular.ttf
+curl -L -o /usr/share/fonts/SegoeUI-Bold.ttf $REACTXP/SegoeUI-Bold.ttf
+curl -L -o /usr/share/fonts/SegoeUI-Semibold.ttf $REACT/SegoeUI-Semibold.ttf
+
 
 # Use a COPR Example:
 #
