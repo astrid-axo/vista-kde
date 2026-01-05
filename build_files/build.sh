@@ -2,6 +2,11 @@
 
 set -ouex pipefail
 
+install_component () {
+    kpackagetool6 -g -t "$2" -i "$1" || \
+    kpackagetool6 -g -t "$2" -u "$1"
+}
+
 ### Install packages
 
 # Packages can be installed from any enabled yum repo on the image.
@@ -10,16 +15,94 @@ set -ouex pipefail
 # https://mirrors.rpmfusion.org/mirrorlist?path=free/fedora/updates/43/x86_64/repoview/index.html&protocol=https&redirect=1
 
 # this installs a package from fedora repos
-cd /tmp
-dnf -y install plasma-workspace-devel unzip kvantum qt6-qtmultimedia-devel qt6-qt5compat-devel libplasma-devel qt6-qtbase-devel qt6-qtwayland-devel plasma-activities-devel kf6-kpackage-devel kf6-kglobalaccel-devel qt6-qtsvg-devel wayland-devel plasma-wayland-protocols kf6-ksvg-devel kf6-kcrash-devel kf6-kguiaddons-devel kf6-kcmutils-devel kf6-kio-devel kdecoration-devel kf6-ki18n-devel kf6-knotifications-devel kf6-kirigami-devel kf6-kiconthemes-devel cmake gmp-ecm-devel kf5-plasma-devel libepoxy-devel kwin-devel kf6-karchive kf6-karchive-devel plasma-wayland-protocols-devel qt6-qtbase-private-devel qt6-qtbase-devel kf6-knewstuff-devel kf6-knotifyconfig-devel kf6-attica-devel kf6-krunner-devel kf6-kdbusaddons-devel kf6-sonnet-devel plasma5support-devel plasma-activities-stats-devel polkit-qt6-1-devel qt-devel libdrm-devel kf6-kitemmodels-devel kf6-kstatusnotifieritem-devel layer-shell-qt-devel
+ls /usr/share/kwin
 
-git clone https://gitgud.io/catpswin56/vistathemeplasma
-cd vistathemeplasma
+dnf -y install ninja plasma-workspace-devel unzip kvantum qt6-qtmultimedia-devel qt6-qt5compat-devel libplasma-devel qt6-qtbase-devel qt6-qtwayland-devel plasma-activities-devel kf6-kpackage-devel kf6-kglobalaccel-devel qt6-qtsvg-devel wayland-devel plasma-wayland-protocols kf6-ksvg-devel kf6-kcrash-devel kf6-kguiaddons-devel kf6-kcmutils-devel kf6-kio-devel kdecoration-devel kf6-ki18n-devel kf6-knotifications-devel kf6-kirigami-devel kf6-kiconthemes-devel cmake gmp-ecm-devel kf5-plasma-devel libepoxy-devel kwin-devel kf6-karchive kf6-karchive-devel plasma-wayland-protocols-devel qt6-qtbase-private-devel qt6-qtbase-devel kf6-knewstuff-devel kf6-knotifyconfig-devel kf6-attica-devel kf6-krunner-devel kf6-kdbusaddons-devel kf6-sonnet-devel plasma5support-devel plasma-activities-stats-devel polkit-qt6-1-devel qt-devel libdrm-devel kf6-kitemmodels-devel kf6-kstatusnotifieritem-devel layer-shell-qt-devel
+
+git clone https://gitgud.io/catpswin56/vistathemeplasma /tmp/vistathemeplasma
+
+cd /tmp/vistathemeplasma
+CUR="$(pwd)"
+
 sh compile.sh --ninja --wayland
-HOME="/etc/skel.d" sh install_plasmoids.sh --ninja && \
-	sh install_kwin_components.sh && \
-	sh install_plasma_components.sh && \
-      	sh install_misc_components.sh
+# plasmoids
+for i in "$CUR/plasma/plasmoids/src/"*; do
+    cd "$i"
+    sh install.sh $@
+done
+
+cd $CUR
+
+for i in "$CUR/plasma/plasmoids/"*; do
+    if ! echo $i | grep src; then
+        install_component "$i" "Plasma/Applet"
+    fi
+done
+    
+# kwin components
+cp -r "$CUR/kwin/smod" "/usr/share"
+
+for i in "$CUR/kwin/effects/"*; do
+    install_component "$i" "KWin/Effect"
+done
+
+for i in "$CUR/kwin/tabbox/"*; do
+    install_component "$i" "KWin/WindowSwitcher"
+done
+
+cp -r "$CUR/kwin/outline" "/usr/share/kwin"
+cd /usr/share/
+ln -s kwin kwin-x11
+ln -s kwin kwin-wayland
+cd $CUR
+
+# plasma components
+install_component "$CUR/plasma/look-and-feel/authuiVista" "Plasma/LookAndFeel"
+install_component "$CUR/plasma/layout-templates/io.gitgud.catpswin56.taskbar" "Plasma/LayoutTemplate"
+install_component "$CUR/plasma/desktoptheme/Vista-Black" "Plasma/Shell"
+install_component "$CUR/plasma/shells/io.gitgud.catpswin56.desktop" "Plasma/Shell"
+
+mkdir -p /usr/share/color-schemes
+cp $CUR/plasma/color_scheme/Aero.colors /usr/share/color-schemes
+
+cd $CUR/plasma/sddm/login-sessions
+sh install.sh
+cd $CUR/plasma/sddm
+# tar -zcvf "sddm-theme-mod.tar.gz" sddm-theme-mod
+# sddmthemeinstaller -i sddm-theme-mod.tar.gz
+#rm sddm-theme-mod.tar.gz
+
+cd $CUR
+# misc components
+cp -r $CUR/misc/kvantum/Kvantum /etc
+
+mkdir -p /usr/share/sounds
+tar -xf $CUR/misc/sounds/sounds.tar.gz --directory /usr/share/sounds
+
+mkdir -p /usr/share/icons
+tar -xf "$CUR/misc/icons/Windows Vista Aero.tar.gz" --directory /usr/share/icons
+tar -xf $CUR/misc/cursors/aero-drop.tar.gz --directory /usr/share/icons
+
+mkdir -p /usr/share/mime/packages
+for i in "$CUR/misc/mimetype/"*; do
+    cp -r "$i" /usr/share/mime/packages
+done
+
+update-mime-database /usr/share/mime
+
+for i in "./misc/branding/"*; do
+    cp -r "$i" /etc/kdedefaults
+done
+kwriteconfig6 --file /etc/kcm-about-distrorc --group General --key LogoPath /etc/kdedefaults/kcminfo.png
+
+
+git clone https://github.com/furkrn/PlymouthVista
+cd PlymouthVista
+chmod +x ./compile.sh
+chmod +x ./install.sh
+./compile.sh
+FOO=0 ./install.sh
+
 # Use a COPR Example:
 #
 # dnf5 -y copr enable ublue-os/staging
