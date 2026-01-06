@@ -95,12 +95,11 @@ echo -e "[General]\ntheme=WindowsVistaKvantum_Aero" > /usr/share/Kvantum/kvantum
 
 cd $CUR/misc/libplasma
 sh install.sh --ninja
-
 # cd $CUR/misc/uac-polkitagent
 # sh install.sh --ninja
 # sh add_rule.sh --ninja
 
-cd $cUR
+cd $CUR
 
 mkdir -p /usr/share/sounds
 tar -xf $CUR/misc/sounds/sounds.tar.gz --directory /usr/share/sounds
@@ -138,5 +137,4 @@ echo "1" | ./install.sh
 # dnf5 -y copr disable ublue-os/staging
 
 #### Example for enabling a System Unit File
-
 systemctl enable podman.socket
