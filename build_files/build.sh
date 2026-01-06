@@ -35,7 +35,7 @@ sh compile.sh --ninja --wayland
 # plasmoids
 for i in "$CUR/plasma/plasmoids/src/"*; do
     cd "$i"
-    sh install.sh $@
+    sh install.sh --ninja
 done
 
 cd $CUR
@@ -96,9 +96,9 @@ echo -e "[General]\ntheme=WindowsVistaKvantum_Aero" > /usr/share/Kvantum/kvantum
 cd $CUR/misc/libplasma
 sh install.sh --ninja
 
-cd $CUR/misc/uac-polkitagent
-sh install.sh --ninja
-sh add_rule.sh --ninja
+# cd $CUR/misc/uac-polkitagent
+# sh install.sh --ninja
+# sh add_rule.sh --ninja
 
 cd $cUR
 
