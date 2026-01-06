@@ -22,6 +22,8 @@ REACTXP="https://github.com/microsoft/reactxp/raw/refs/heads/master/samples/Todo
 curl -Ls -o /usr/share/fonts/SegoeUI-Regular.ttf $REACTXP/SegoeUI-Regular.ttf
 curl -Ls -o /usr/share/fonts/SegoeUI-Semibold.ttf $REACTXP/SegoeUI-Semibold.ttf
 curl -Ls -o /usr/share/fonts/SegoeUI-Bold.ttf $REACTXP/SegoeUI-Bold.ttf
+curl -Ls -o /usr/share/fonts/Lucida-Console.ttf https://github.com/elliotwoods/kimchiandchips/raw/refs/heads/master/oF/apps%20VS/PC%20Encode%203.0/bin/data/Lucida%20Console.ttf
+
 fc-cache -f -r -v
 
 git clone https://gitgud.io/catpswin56/vistathemeplasma /tmp/vistathemeplasma
@@ -50,6 +52,7 @@ for i in "$CUR/plasma/plasmoids/src/"*; do
 done
 
 cd $CUR
+
 # kwin components
 cp -r "$CUR/kwin/smod" "/usr/share"
 
@@ -78,7 +81,7 @@ mkdir -p /usr/share/color-schemes
 cp $CUR/plasma/color_scheme/Aero.colors /usr/share/color-schemes
 
 cd $CUR/plasma/sddm/login-sessions
-sh install.sh
+sh install.sh --ninja
 cd $CUR/plasma/sddm
 cp -r sddm-theme-mod /usr/share/sddm/themes
 # tar -zcvf "sddm-theme-mod.tar.gz" sddm-theme-mod
@@ -88,7 +91,16 @@ cp -r sddm-theme-mod /usr/share/sddm/themes
 cd $CUR
 # misc components
 cp -r $CUR/misc/kvantum/Kvantum /etc
-echo -e "[General]\ntheme=WindowsVistaKvantum_Aero" > /etc/Kvantum/kvantum.kvconfig
+echo -e "[General]\ntheme=WindowsVistaKvantum_Aero" > /usr/share/Kvantum/kvantum.kvconfig
+
+cd $CUR/misc/libplasma
+sh install.sh --ninja
+
+cd $CUR/misc/uac-polkitagent
+sh install.sh --ninja
+sh add_rule.sh --ninja
+
+cd $cUR
 
 mkdir -p /usr/share/sounds
 tar -xf $CUR/misc/sounds/sounds.tar.gz --directory /usr/share/sounds
